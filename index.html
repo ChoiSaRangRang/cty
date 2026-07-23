@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>멜론으로 바로 듣기</title>
-  <meta name="description" content="버튼을 누르면 멜론 앱으로 곡을 재생합니다." />
+  <meta name="description" content="버튼을 누르면 멜론 앱으로 곡 재생을 시도합니다." />
   <style>
     :root {
       --bg: #0f1115;
@@ -84,6 +84,7 @@
       font-weight: 800;
       text-decoration: none;
       box-shadow: 0 10px 24px rgba(30, 215, 96, 0.28);
+      cursor: pointer;
     }
     .note {
       margin-top: 14px;
@@ -101,14 +102,40 @@
 
     <div class="song">CATCH THE YOUNG - 찬란히 빛나줘(Sail)</div>
 
-    <a class="btn" href="melonapp://play?cid=600941690&ctype=1&menuid=2079">
-      Play in Melon
-    </a>
+    <a href="#" class="btn" id="playBtn">Play in Melon</a>
 
     <div class="note">
-      멜론 앱이 설치되어 있으면 앱이 열립니다.<br />
-      기기/앱 상태에 따라 다르게 동작할 수 있습니다.
+      멜론 앱이 설치되어 있으면 앱을 열고, 없으면 웹으로 이동합니다.
     </div>
   </main>
+
+  <script>
+    const deepLinkUrl = "melonapp://play?cid=600941690&ctype=1&menuid=2079";
+    const fallbackUrl = "https://www.melon.com/song/detail.htm?songId=600941690";
+
+    document.getElementById("playBtn").addEventListener("click", function (e) {
+      e.preventDefault();
+
+      let opened = false;
+      const iframe = document.createElement("iframe");
+      iframe.style.display = "none";
+      iframe.src = deepLinkUrl;
+      document.body.appendChild(iframe);
+
+      const timer = setTimeout(function () {
+        if (!opened) window.location.href = fallbackUrl;
+      }, 1200);
+
+      const onVisibilityChange = function () {
+        if (document.hidden) {
+          opened = true;
+          clearTimeout(timer);
+          document.removeEventListener("visibilitychange", onVisibilityChange);
+        }
+      };
+
+      document.addEventListener("visibilitychange", onVisibilityChange);
+    });
+  </script>
 </body>
 </html>
